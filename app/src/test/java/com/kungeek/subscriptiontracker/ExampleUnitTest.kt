@@ -1,4 +1,4 @@
-package com.example.subscriptiontracker
+package com.kungeek.subscriptiontracker
 
 import org.junit.Test
 

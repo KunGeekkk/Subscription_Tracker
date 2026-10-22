@@ -1,4 +1,4 @@
-package com.example.subscriptiontracker.ui.theme
+package com.kungeek.subscriptiontracker.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
