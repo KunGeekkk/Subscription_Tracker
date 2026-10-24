@@ -8,11 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kungeek.subscriptiontracker.data.fakeSubscriptions
 import com.kungeek.subscriptiontracker.ui.subscriptions.SubscriptionListRoute
-import com.kungeek.subscriptiontracker.ui.subscriptions.SubscriptionListScreen
 import com.kungeek.subscriptiontracker.ui.theme.SubscriptionTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SubscriptionTrackerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SubscriptionListRoute(viewModel(), modifier = Modifier.padding(innerPadding))
+                    SubscriptionListRoute(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

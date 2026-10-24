@@ -16,9 +16,9 @@ import com.kungeek.subscriptiontracker.model.Subscription
 import com.kungeek.subscriptiontracker.ui.theme.SubscriptionTrackerTheme
 
 @Composable
-fun SubscriptionListRoute(viewModel: SubscriptionViewModel = viewModel(), modifier: Modifier = Modifier){
-    val subscriptions by viewModel.subscribe.collectAsStateWithLifecycle()
-    SubscriptionListScreen(subscriptions = subscriptions)
+fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: SubscriptionViewModel = viewModel()){
+    val subscriptions by viewModel.subscriptions.collectAsStateWithLifecycle()
+    SubscriptionListScreen(modifier = modifier, subscriptions = subscriptions)
 }
 
 
