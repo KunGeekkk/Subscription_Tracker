@@ -18,7 +18,11 @@ import com.kungeek.subscriptiontracker.ui.theme.SubscriptionTrackerTheme
 @Composable
 fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: SubscriptionViewModel = viewModel()){
     val subscriptions by viewModel.subscriptions.collectAsStateWithLifecycle()
-    SubscriptionListScreen(modifier = modifier, subscriptions = subscriptions)
+    SubscriptionListScreen(
+        modifier = modifier,
+        subscriptions = subscriptions,
+        onRemoveSubscription = {id -> viewModel.removeSub(id)}
+    )
 }
 
 
@@ -27,6 +31,7 @@ fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: Subscription
 @Composable
 fun SubscriptionListScreen(
     subscriptions: List<Subscription>,
+    onRemoveSubscription: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -35,7 +40,7 @@ fun SubscriptionListScreen(
         modifier = modifier
     ) {
         items(subscriptions, key = { it.id }) { subscription ->
-            SubscriptionCard(subscription)
+            SubscriptionCard(subscription = subscription, onRemove = {onRemoveSubscription(subscription.id)})
         }
     }
 }
@@ -44,6 +49,6 @@ fun SubscriptionListScreen(
 @Composable
 fun SubscriptionListScreenPreview() {
     SubscriptionTrackerTheme {
-        SubscriptionListScreen(subscriptions = fakeSubscriptions)
+        SubscriptionListScreen(subscriptions = fakeSubscriptions, onRemoveSubscription = { })
     }
 }

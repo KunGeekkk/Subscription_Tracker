@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +19,7 @@ import com.kungeek.subscriptiontracker.model.Subscription
 import com.kungeek.subscriptiontracker.ui.theme.SubscriptionTrackerTheme
 
 @Composable
-fun SubscriptionCard(subscription: Subscription, modifier: Modifier = Modifier){
+fun SubscriptionCard(subscription: Subscription, onRemove: ()->Unit, modifier: Modifier = Modifier){
     Card(modifier = modifier.fillMaxWidth()) {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -50,6 +51,8 @@ fun SubscriptionCard(subscription: Subscription, modifier: Modifier = Modifier){
                     text = "${subscription.period}",
                     style = MaterialTheme.typography.labelSmall
                 )
+
+                TextButton(onClick = onRemove) { Text("Remove") }
             }
         }
     }
@@ -59,6 +62,6 @@ fun SubscriptionCard(subscription: Subscription, modifier: Modifier = Modifier){
 @Composable
 fun SubscriptionCardPreview(){
     SubscriptionTrackerTheme {
-        SubscriptionCard(subscription = fakeSubscriptions.first())
+        SubscriptionCard(subscription = fakeSubscriptions.first(), onRemove = {})
     }
 }
