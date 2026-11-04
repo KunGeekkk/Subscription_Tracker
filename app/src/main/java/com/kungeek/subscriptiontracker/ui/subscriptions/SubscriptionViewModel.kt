@@ -20,7 +20,7 @@ class SubscriptionViewModel: ViewModel(){
         _subscriptions.update { current -> current.filter { it.id != id }}
     }
 
-    fun addSub(title: String, cost: BigDecimal, currency: String){
+    fun addSubscription(title: String, cost: BigDecimal, currency: String){
         _subscriptions.update { currentList ->
             val newId = (currentList.maxOfOrNull { it.id } ?: 0L ) + 1
             val newSub = Subscription(

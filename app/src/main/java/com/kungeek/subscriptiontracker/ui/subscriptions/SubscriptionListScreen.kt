@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kungeek.subscriptiontracker.data.fakeSubscriptions
 import com.kungeek.subscriptiontracker.model.Subscription
 import com.kungeek.subscriptiontracker.ui.theme.SubscriptionTrackerTheme
+import java.math.BigDecimal
 
 @Composable
 fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: SubscriptionViewModel = viewModel()){
@@ -29,7 +29,8 @@ fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: Subscription
     SubscriptionListScreen(
         modifier = modifier,
         subscriptions = subscriptions,
-        onRemoveSubscription = {id -> viewModel.removeSub(id)}
+        onRemoveSubscription = {id -> viewModel.removeSub(id)},
+        onAddSubscription = { title, cost, currency -> viewModel.addSubscription(title, cost, currency)}
     )
 }
 
@@ -40,6 +41,7 @@ fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: Subscription
 fun SubscriptionListScreen(
     subscriptions: List<Subscription>,
     onRemoveSubscription: (Long) -> Unit,
+    onAddSubscription:(String, BigDecimal, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -59,7 +61,17 @@ fun SubscriptionListScreen(
             OutlinedTextField( value = title, onValueChange = {title = it}, label = { Text("Title") })
             OutlinedTextField( value = cost, onValueChange = {cost = it}, label = { Text("Cost") })
             OutlinedTextField( value = currency, onValueChange = {currency = it}, label = { Text("Currency") })
-            Button(onClick = {}) { Text("Add") }
+            Button(onClick = {
+
+                val parsedCost = cost.toBigDecimalOrNull()
+
+                if (parsedCost != null){
+                    onAddSubscription(title, parsedCost, currency)
+                    title = ""
+                    cost = ""
+                    currency = ""
+                }
+            }) { Text("Add") }
         }
         items(subscriptions, key = { it.id }) { subscription ->
             SubscriptionCard(subscription = subscription, onRemove = {onRemoveSubscription(subscription.id)})
@@ -74,6 +86,6 @@ fun SubscriptionListScreen(
 @Composable
 fun SubscriptionListScreenPreview() {
     SubscriptionTrackerTheme {
-        SubscriptionListScreen(subscriptions = fakeSubscriptions, onRemoveSubscription = { })
+        SubscriptionListScreen(subscriptions = fakeSubscriptions, onRemoveSubscription = { }, onAddSubscription = { string, decimal, string1 -> })
     }
 }
