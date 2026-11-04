@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,7 +31,7 @@ fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: Subscription
     SubscriptionListScreen(
         modifier = modifier,
         subscriptions = subscriptions,
-        onRemoveSubscription = {id -> viewModel.removeSub(id)},
+        onRemoveSubscription = {id -> viewModel.removeSubscription(id)},
         onAddSubscription = { title, cost, currency -> viewModel.addSubscription(title, cost, currency)}
     )
 }
@@ -48,7 +50,11 @@ fun SubscriptionListScreen(
     var title by rememberSaveable { mutableStateOf("") }
     var cost by rememberSaveable { mutableStateOf("") }
     var currency by rememberSaveable { mutableStateOf("") }
+    var submitAttempted by rememberSaveable { mutableStateOf(false) }
 
+    val titleError = submitAttempted && title.isBlank()
+    val costError = submitAttempted && cost.toBigDecimalOrNull() == null
+    val currencyError = submitAttempted && currency.isBlank()
 
 
     LazyColumn(
@@ -58,15 +64,16 @@ fun SubscriptionListScreen(
         modifier = modifier
     ) {
         item {
-            OutlinedTextField( value = title, onValueChange = {title = it}, label = { Text("Title") })
-            OutlinedTextField( value = cost, onValueChange = {cost = it}, label = { Text("Cost") })
-            OutlinedTextField( value = currency, onValueChange = {currency = it}, label = { Text("Currency") })
+            OutlinedTextField( value = title, onValueChange = {title = it}, label = { Text("Title") }, isError = titleError, supportingText = {if (titleError) Text("Write the title")})
+            OutlinedTextField( value = cost, onValueChange = {cost = it}, label = { Text("Cost") }, isError = costError, supportingText = {if (costError) Text("Write the right cost")}, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+            OutlinedTextField( value = currency, onValueChange = {currency = it}, label = { Text("Currency") }, isError = currencyError, supportingText = {if (currencyError) Text("Write the currency")})
             Button(onClick = {
-
+                submitAttempted = true
                 val parsedCost = cost.toBigDecimalOrNull()
 
-                if (parsedCost != null){
+                if (parsedCost != null && title.isNotBlank() && currency.isNotBlank()){
                     onAddSubscription(title, parsedCost, currency)
+                    submitAttempted = false
                     title = ""
                     cost = ""
                     currency = ""

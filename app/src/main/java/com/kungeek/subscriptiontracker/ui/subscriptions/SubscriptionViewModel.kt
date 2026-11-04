@@ -16,7 +16,7 @@ class SubscriptionViewModel: ViewModel(){
     val subscriptions: StateFlow<List<Subscription>> = _subscriptions.asStateFlow()
 
 
-    fun removeSub(id: Long){
+    fun removeSubscription(id: Long){
         _subscriptions.update { current -> current.filter { it.id != id }}
     }
 
