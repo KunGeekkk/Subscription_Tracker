@@ -46,16 +46,18 @@ fun SubscriptionListScreen(
     onAddSubscription:(String, BigDecimal, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     var title by rememberSaveable { mutableStateOf("") }
     var cost by rememberSaveable { mutableStateOf("") }
     var currency by rememberSaveable { mutableStateOf("") }
     var submitAttempted by rememberSaveable { mutableStateOf(false) }
 
-    val titleError = submitAttempted && title.isBlank()
-    val costError = submitAttempted && cost.toBigDecimalOrNull() == null
-    val currencyError = submitAttempted && currency.isBlank()
+    val isTitleValid = title.isNotBlank()
+    val isCurrencyValid = currency.isNotBlank()
+    val parsedCost = cost.trim().replace(',', '.').toBigDecimalOrNull()
 
+    val titleError = submitAttempted && !isTitleValid
+    val costError = submitAttempted && parsedCost == null
+    val currencyError = submitAttempted && !isCurrencyValid
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -64,15 +66,32 @@ fun SubscriptionListScreen(
         modifier = modifier
     ) {
         item {
-            OutlinedTextField( value = title, onValueChange = {title = it}, label = { Text("Title") }, isError = titleError, supportingText = {if (titleError) Text("Write the title")})
-            OutlinedTextField( value = cost, onValueChange = {cost = it}, label = { Text("Cost") }, isError = costError, supportingText = {if (costError) Text("Write the right cost")}, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            OutlinedTextField( value = currency, onValueChange = {currency = it}, label = { Text("Currency") }, isError = currencyError, supportingText = {if (currencyError) Text("Write the currency")})
+            OutlinedTextField(
+                value = title,
+                onValueChange = {title = it},
+                label = { Text("Title") },
+                isError = titleError,
+                supportingText = {if (titleError) Text("Write the title")}
+            )
+            OutlinedTextField(
+                value = cost,
+                onValueChange = {cost = it},
+                label = { Text("Cost") },
+                isError = costError,
+                supportingText = {if (costError) Text("Write the right cost")},
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+            OutlinedTextField(
+                value = currency,
+                onValueChange = {currency = it},
+                label = { Text("Currency") },
+                isError = currencyError,
+                supportingText = {if (currencyError) Text("Write the currency")}
+            )
             Button(onClick = {
                 submitAttempted = true
-                val parsedCost = cost.toBigDecimalOrNull()
-
-                if (parsedCost != null && title.isNotBlank() && currency.isNotBlank()){
-                    onAddSubscription(title, parsedCost, currency)
+                if (isTitleValid && parsedCost != null && isCurrencyValid){
+                    onAddSubscription(title.trim(), parsedCost, currency.trim().uppercase())
                     submitAttempted = false
                     title = ""
                     cost = ""
