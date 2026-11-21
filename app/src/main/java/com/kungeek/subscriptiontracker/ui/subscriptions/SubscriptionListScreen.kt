@@ -2,11 +2,14 @@ package com.kungeek.subscriptiontracker.ui.subscriptions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,13 +29,14 @@ import com.kungeek.subscriptiontracker.ui.theme.SubscriptionTrackerTheme
 import java.math.BigDecimal
 
 @Composable
-fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: SubscriptionViewModel = viewModel()){
+fun SubscriptionListRoute(modifier: Modifier = Modifier, viewModel: SubscriptionViewModel = viewModel(), onAddClick: () -> Unit){
     val subscriptions by viewModel.subscriptions.collectAsStateWithLifecycle()
     SubscriptionListScreen(
         modifier = modifier,
         subscriptions = subscriptions,
         onRemoveSubscription = {id -> viewModel.removeSubscription(id)},
-        onAddSubscription = { title, cost, currency -> viewModel.addSubscription(title, cost, currency)}
+        onAddSubscription = { title, cost, currency -> viewModel.addSubscription(title, cost, currency)},
+        onAddClick = onAddClick
     )
 }
 
@@ -44,6 +48,7 @@ fun SubscriptionListScreen(
     subscriptions: List<Subscription>,
     onRemoveSubscription: (Long) -> Unit,
     onAddSubscription:(String, BigDecimal, String) -> Unit,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var title by rememberSaveable { mutableStateOf("") }
@@ -59,48 +64,54 @@ fun SubscriptionListScreen(
     val costError = submitAttempted && parsedCost == null
     val currencyError = submitAttempted && !isCurrencyValid
 
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        item {
-            OutlinedTextField(
-                value = title,
-                onValueChange = {title = it},
-                label = { Text("Title") },
-                isError = titleError,
-                supportingText = {if (titleError) Text("Write the title")}
-            )
-            OutlinedTextField(
-                value = cost,
-                onValueChange = {cost = it},
-                label = { Text("Cost") },
-                isError = costError,
-                supportingText = {if (costError) Text("Write the right cost")},
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-            )
-            OutlinedTextField(
-                value = currency,
-                onValueChange = {currency = it},
-                label = { Text("Currency") },
-                isError = currencyError,
-                supportingText = {if (currencyError) Text("Write the currency")}
-            )
-            Button(onClick = {
-                submitAttempted = true
-                if (isTitleValid && parsedCost != null && isCurrencyValid){
-                    onAddSubscription(title.trim(), parsedCost, currency.trim().uppercase())
-                    submitAttempted = false
-                    title = ""
-                    cost = ""
-                    currency = ""
-                }
-            }) { Text("Add") }
-        }
-        items(subscriptions, key = { it.id }) { subscription ->
-            SubscriptionCard(subscription = subscription, onRemove = {onRemoveSubscription(subscription.id)})
+
+    Scaffold(
+        modifier = modifier,
+        floatingActionButton = { FloatingActionButton(onClick = onAddClick) {Text("+")} }
+    ) { innerPadding ->
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            item {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = {title = it},
+                    label = { Text("Title") },
+                    isError = titleError,
+                    supportingText = {if (titleError) Text("Write the title")}
+                )
+                OutlinedTextField(
+                    value = cost,
+                    onValueChange = {cost = it},
+                    label = { Text("Cost") },
+                    isError = costError,
+                    supportingText = {if (costError) Text("Write the right cost")},
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+                OutlinedTextField(
+                    value = currency,
+                    onValueChange = {currency = it},
+                    label = { Text("Currency") },
+                    isError = currencyError,
+                    supportingText = {if (currencyError) Text("Write the currency")}
+                )
+                Button(onClick = {
+                    submitAttempted = true
+                    if (isTitleValid && parsedCost != null && isCurrencyValid){
+                        onAddSubscription(title.trim(), parsedCost, currency.trim().uppercase())
+                        submitAttempted = false
+                        title = ""
+                        cost = ""
+                        currency = ""
+                    }
+                }) { Text("Add") }
+            }
+            items(subscriptions, key = { it.id }) { subscription ->
+                SubscriptionCard(subscription = subscription, onRemove = {onRemoveSubscription(subscription.id)})
+            }
         }
     }
 }
@@ -112,6 +123,6 @@ fun SubscriptionListScreen(
 @Composable
 fun SubscriptionListScreenPreview() {
     SubscriptionTrackerTheme {
-        SubscriptionListScreen(subscriptions = fakeSubscriptions, onRemoveSubscription = { }, onAddSubscription = { string, decimal, string1 -> })
+        SubscriptionListScreen(subscriptions = fakeSubscriptions, onRemoveSubscription = { }, onAddSubscription = { _, _, _ -> }, onAddClick = {})
     }
 }
